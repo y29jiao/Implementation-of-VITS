@@ -1,8 +1,11 @@
 # VITS Model (Conditional Variational Autoencoder with Adversarial) for Audio Source Separation
 ## Overview
 This repository contains the trained VITS (Variational Inference Transformer for Audio Source Separation) model, designed to perform high-quality audio source separation and text-to-speech synthesis. The model has been trained on 13,100 short audio clips spoken by a single speaker, totaling about 24 hours of audio, to produce a remarkable human-like voice effect.
+
 Original author Jaehyeon Kim, Jungil Kong, and Juhee Son
+
 Original Paper Link: https://arxiv.org/abs/2106.06103
+
 ## Data Collection
 
 - **Total Clips**: 13,100
