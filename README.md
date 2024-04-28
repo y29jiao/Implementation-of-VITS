@@ -1,58 +1,47 @@
-# VITS: Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech
+# VITS Model (Conditional Variational Autoencoder with Adversarial) for Audio Source Separation
+## Overview
+This repository contains the trained VITS (Variational Inference Transformer for Audio Source Separation) model, designed to perform high-quality audio source separation and text-to-speech synthesis. The model has been trained on 13,100 short audio clips spoken by a single speaker, totaling about 24 hours of audio, to produce a remarkable human-like voice effect.
+Original author Jaehyeon Kim, Jungil Kong, and Juhee Son
+Original Paper Link: https://arxiv.org/abs/2106.06103
+## Data Collection
 
-### Jaehyeon Kim, Jungil Kong, and Juhee Son
+- **Total Clips**: 13,100
+- **Total Duration**: ~24 hours
+- **Audio Format**: 16-bit PCM
+- **Sampling Rate**: 22 kHz
+- **Dataset Split**:
+  - Training Set: 12,500 samples
+  - Validation Set: 100 samples
+  - Test Set: 500 samples
+- **Data Annotation**: Each file list contains the path to the audio file and the corresponding text.
 
-In our recent [paper](https://arxiv.org/abs/2106.06103), we propose VITS: Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech.
+## Pre-processing
 
-Several recent end-to-end text-to-speech (TTS) models enabling single-stage training and parallel sampling have been proposed, but their sample quality does not match that of two-stage TTS systems. In this work, we present a parallel end-to-end TTS method that generates more natural sounding audio than current two-stage models. Our method adopts variational inference augmented with normalizing flows and an adversarial training process, which improves the expressive power of generative modeling. We also propose a stochastic duration predictor to synthesize speech with diverse rhythms from input text. With the uncertainty modeling over latent variables and the stochastic duration predictor, our method expresses the natural one-to-many relationship in which a text input can be spoken in multiple ways with different pitches and rhythms. A subjective human evaluation (mean opinion score, or MOS) on the LJ Speech, a single speaker dataset, shows that our method outperforms the best publicly available TTS systems and achieves a MOS comparable to ground truth.
+### Text Preprocessing
 
-Visit our [demo](https://jaywalnut310.github.io/vits-demo/index.html) for audio samples.
+- **Cleaning**: Irrelevant characters are removed.
+- **Standardization**: Abbreviations replaced and numbers converted.
 
-We also provide the [pretrained models](https://drive.google.com/drive/folders/1ksarh-cJf3F5eKJjLVWY0X1j1qsQqiS2?usp=sharing).
+### Audio Pre-processing
 
-** Update note: Thanks to [Rishikesh (ऋषिकेश)](https://github.com/jaywalnut310/vits/issues/1), our interactive TTS demo is now available on [Colab Notebook](https://colab.research.google.com/drive/1CO61pZizDj7en71NQG_aqqKdGaA_SaBf?usp=sharing).
+- **Resampling**: Audio files are resampled to match the model's input requirements.
+- **Feature Extraction**: Audio features such as Mel spectrograms are extracted using Short Time Fourier Transform (STFT).
+- **Normalization**: Audio data is normalized to the range [-1, 1].
 
-<table style="width:100%">
-  <tr>
-    <th>VITS at training</th>
-    <th>VITS at inference</th>
-  </tr>
-  <tr>
-    <td><img src="resources/fig_1a.png" alt="VITS at training" height="400"></td>
-    <td><img src="resources/fig_1b.png" alt="VITS at inference" height="400"></td>
-  </tr>
-</table>
+## Model Training
 
+- **Learning Rate Decay**: Employed to improve convergence and stability.
+- **Windowed Generator Training**: Reduces time and memory consumption without sacrificing quality.
+- **Mixed Precision Training**: Utilizes half-precision floating point to increase training speed and reduce memory footprint.
+- **Batch Size**: 4 (chosen based on computer performance)
+- **Training Duration**: 48 hours
 
-## Pre-requisites
-0. Python >= 3.6
-0. Clone this repository
-0. Install python requirements. Please refer [requirements.txt](requirements.txt)
-    1. You may need to install espeak first: `apt-get install espeak`
-0. Download datasets
-    1. Download and extract the LJ Speech dataset, then rename or create a link to the dataset folder: `ln -s /path/to/LJSpeech-1.1/wavs DUMMY1`
-    1. For mult-speaker setting, download and extract the VCTK dataset, and downsample wav files to 22050 Hz. Then rename or create a link to the dataset folder: `ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2`
-0. Build Monotonic Alignment Search and run preprocessing if you use your own datasets.
-```sh
-# Cython-version Monotonoic Alignment Search
-cd monotonic_align
-python setup.py build_ext --inplace
+## Results
 
-# Preprocessing (g2p) for your own datasets. Preprocessed phonemes for LJ Speech and VCTK have been already provided.
-# python preprocess.py --text_index 1 --filelists filelists/ljs_audio_text_train_filelist.txt filelists/ljs_audio_text_val_filelist.txt filelists/ljs_audio_text_test_filelist.txt 
-# python preprocess.py --text_index 2 --filelists filelists/vctk_audio_sid_text_train_filelist.txt filelists/vctk_audio_sid_text_val_filelist.txt filelists/vctk_audio_sid_text_test_filelist.txt
-```
+- **Model Performance**: As training progresses, the model captures more detailed information, improving the quality of the audio output.
+- **Visualization**: TensorBoard is used for an intuitive visualization of training progress, showing enhancements in frame detail and overall audio quality.
 
+## Inference
 
-## Training Exmaple
-```sh
-# LJ Speech
-python train.py -c configs/ljs_base.json -m ljs_base
-
-# VCTK
-python train_ms.py -c configs/vctk_base.json -m vctk_base
-```
-
-
-## Inference Example
-See [inference.ipynb](inference.ipynb)
+- **Sentence to Audio**: The model can successfully convert given sentences into audio files.
+- **Output**: Audio files can be saved locally, demonstrating the model's ability to generate voices that are indistinguishable from real human voices.
